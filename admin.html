@@ -2,91 +2,86 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Tạo Truyện Mới - Truyện Sáng Tác Vô Địch</title>
+    <title>Đăng Nhập - Truyện Sáng Tác Vô Địch</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 text-gray-800 p-4 md:p-8">
-    <script>
-        const currentUser = localStorage.getItem('currentUser');
-        if (!currentUser) {
-            alert('Bạn cần đăng nhập để tạo truyện!');
-            window.location.href = 'login.html';
-        }
-    </script>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="max-w-md w-full bg-white p-6 rounded shadow">
+        <h1 id="form-title" class="text-2xl font-bold text-indigo-600 mb-6 text-center">🔐 Đăng Nhập Quản Trị</h1>
 
-    <div class="max-w-2xl mx-auto bg-white p-6 rounded shadow">
-        <div class="flex justify-between items-center mb-6 border-b pb-4">
+        <div id="auth-form" class="space-y-4">
             <div>
-                <h1 class="text-2xl font-bold text-indigo-600">📚 Khởi Tạo Bộ Truyện Mới</h1>
-                <p class="text-xs text-gray-500">Tác giả: <span class="font-bold text-indigo-500">${currentUser}</span></p>
+                <label class="block font-semibold mb-1">Tài khoản</label>
+                <input type="text" id="username" class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập tên tài khoản" required>
             </div>
-            <div class="space-x-2">
-                <a href="profile.html" class="text-sm text-indigo-600 hover:underline">Hồ sơ cá nhân</a> | 
-                <a href="index.html" class="text-sm text-gray-600 hover:underline">Trang chủ</a>
+            <div>
+                <label class="block font-semibold mb-1">Mật khẩu</label>
+                <input type="password" id="password" class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập mật khẩu" required>
             </div>
+
+            <button id="submit-btn" onclick="handleAuth()" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded hover:bg-indigo-700 transition">Đăng Nhập</button>
         </div>
 
-        <form id="createStoryForm" class="space-y-4">
-            <div>
-                <label class="block font-semibold mb-1">Tên truyện</label>
-                <input type="text" id="title" class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ví dụ: Đỉnh Cấp Khí Vận" required>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block font-semibold mb-1">Bút danh / Tác giả</label>
-                    <input type="text" id="author" class="w-full border p-2 rounded" placeholder="Tên tác giả" required>
-                </div>
-                <div>
-                    <label class="block font-semibold mb-1">Thể loại</label>
-                    <select id="genre" class="w-full border p-2 rounded bg-white">
-                        <option value="Tiên Hiệp">Tiên Hiệp</option>
-                        <option value="Huyền Huyễn">Huyền Huyễn</option>
-                        <option value="Đô Thị">Đô Thị</option>
-                        <option value="Ngôn Tình">Ngôn Tình</option>
-                        <option value="Trọng Sinh">Trọng Sinh</option>
-                        <option value="Khoa Huyễn">Khoa Huyễn</option>
-                        <option value="Lịch Sử">Lịch Sử</option>
-                    </select>
-                </div>
-            </div>
-
-            <div>
-                <label class="block font-semibold mb-1">Link Ảnh Bìa Truyện (URL)</label>
-                <input type="url" id="cover" class="w-full border p-2 rounded" placeholder="Dán link ảnh online (https://...)" required>
-            </div>
-
-            <div>
-                <label class="block font-semibold mb-1">Giới thiệu ngắn / Văn án</label>
-                <textarea id="description" class="w-full border p-2 rounded h-24" placeholder="Tóm tắt nội dung cốt truyện..." required></textarea>
-            </div>
-
-            <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 px-4 rounded hover:bg-indigo-700 transition">Tạo Truyện Ngay</button>
-        </form>
+        <div class="mt-4 text-center">
+            <button onclick="toggleMode()" id="switch-btn" class="text-sm text-indigo-600 hover:underline">Chưa có tài khoản? Đăng ký ngay</button>
+        </div>
+        <div class="mt-2 text-center">
+            <a href="index.html" class="text-xs text-gray-500 hover:underline">← Về trang chủ</a>
+        </div>
     </div>
 
     <script>
-        document.getElementById('createStoryForm').addEventListener('submit', function(e) {
-            e.preventDefault();
+        // Tự động khởi tạo tài khoản Admin mặc định sẵn nếu chưa có
+        window.onload = function() {
+            let users = JSON.parse(localStorage.getItem('myUsers')) || [];
+            const hasAdmin = users.some(u => u.username === 'admin');
+            if (!hasAdmin) {
+                users.push({ username: 'admin', password: '123' });
+                localStorage.setItem('myUsers', JSON.stringify(users));
+            }
+        };
 
-            const newStory = {
-                id: Date.now().toString(),
-                title: document.getElementById('title').value,
-                author: document.getElementById('author').value,
-                genre: document.getElementById('genre').value,
-                cover: document.getElementById('cover').value,
-                description: document.getElementById('description').value,
-                uploader: currentUser,
-                chapters: [] // Khởi tạo danh sách chương trống
-            };
+        let isLoginMode = true;
 
-            let stories = JSON.parse(localStorage.getItem('myStories')) || [];
-            stories.push(newStory);
-            localStorage.setItem('myStories', JSON.stringify(stories));
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('form-title').innerText = isLoginMode ? "🔐 Đăng Nhập Quản Trị" : "📝 Đăng Ký Tài Khoản";
+            document.getElementById('submit-btn').innerText = isLoginMode ? "Đăng Nhập" : "Đăng Ký";
+            document.getElementById('switch-btn').innerText = isLoginMode ? "Chưa có tài khoản? Đăng ký ngay" : "Đã có tài khoản? Đăng nhập";
+        }
 
-            alert('Tạo bộ truyện mới thành công! Bây giờ bạn có thể thêm chương cho truyện.');
-            window.location.href = 'profile.html';
-        });
+        function handleAuth() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (!user || !pass) {
+                alert('Vui lòng nhập đầy đủ tài khoản và mật khẩu!');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('myUsers')) || [];
+
+            if (isLoginMode) {
+                const found = users.find(u => u.username === user && u.password === pass);
+                if (found) {
+                    localStorage.setItem('currentUser', user);
+                    alert('Đăng nhập thành công!');
+                    window.location.href = user === 'admin' ? 'profile.html' : 'index.html';
+                } else {
+                    alert('Sai tài khoản hoặc mật khẩu!');
+                }
+            } else {
+                const exists = users.some(u => u.username === user);
+                if (exists) {
+                    alert('Tài khoản này đã tồn tại!');
+                    return;
+                }
+                users.push({ username: user, password: pass });
+                localStorage.setItem('myUsers', JSON.stringify(users));
+                alert('Đăng ký thành công! Hãy đăng nhập.');
+                toggleMode();
+            }
+        }
     </script>
 </body>
 </html>
