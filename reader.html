@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đọc Truyện - Truyện Sáng Tác Vô Địch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <!-- Header -->
+    <header class="bg-white shadow p-4 sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="text-indigo-600 font-bold hover:underline">← Quay lại trang chủ</a>
+            <h1 id="top-title" class="text-lg font-bold truncate max-w-xs md:max-w-md">Đọc Truyện</h1>
+            <span id="genre-badge" class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded">Thể loại</span>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-6 max-w-4xl">
+        <!-- Phần thông tin chi tiết truyện -->
+        <div id="story-info" class="bg-white p-6 rounded shadow mb-6 flex flex-col md:flex-row gap-6">
+            <img id="story-cover" src="" class="w-full md:w-48 h-64 object-cover rounded shadow mx-auto">
+            <div class="flex-1">
+                <h2 id="story-title" class="text-3xl font-bold mb-2">Tên Truyện</h2>
+                <p class="text-gray-600 mb-2">Tác giả: <span id="story-author" class="font-semibold text-gray-800"></span></p>
+                <p class="text-gray-500 text-sm mb-4">Đăng bởi: <span id="story-uploader"></span></p>
+                <div class="bg-gray-50 p-4 rounded border text-sm leading-relaxed mb-4" id="story-desc"></div>
+            </div>
+        </div>
+
+        <!-- Danh sách chương -->
+        <div class="bg-white p-6 rounded shadow mb-6">
+            <h3 class="text-xl font-bold mb-4 border-b pb-2">Danh Sách Chương</h3>
+            <div id="chapter-list" class="space-y-2 max-h-60 overflow-y-auto">
+                <!-- Danh sách chương sẽ load vào đây -->
+            </div>
+        </div>
+
+        <!-- Phần hiển thị nội dung chương khi đọc -->
+        <div id="chapter-reader" class="bg-white p-6 md:p-10 rounded shadow hidden">
+            <h2 id="current-chapter-title" class="text-2xl font-bold mb-4 text-center text-indigo-600"></h2>
+            <div id="chapter-content" class="prose max-w-none leading-loose text-lg whitespace-pre-line mb-8"></div>
+            <div class="flex justify-between border-t pt-4">
+                <button onclick="window.scrollTo({top: 0, behavior: 'smooth'})" class="bg-gray-200 text-gray-700 px-4 py-2 rounded hover:bg-gray-300">⬆ Lên đầu trang</button>
+                <a href="#top-title" class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700">📚 Về danh sách chương</a>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Lấy ID truyện từ đường dẫn (URL)
+        const urlParams = new URLSearchParams(window.location.search);
+        const storyId = urlParams.get('id');
+
+        const stories = JSON.parse(localStorage.getItem('myStories')) || [];
+        const story = stories.find(s => s.id === storyId);
+
+        if (!story) {
+            document.querySelector('main').innerHTML = '<div class="text-center py-20 text-xl text-red-500">Không tìm thấy truyện này! <br><a href="index.html" class="text-indigo-600 underline">Về trang chủ</a></div>';
+        } else {
+            // Hiển thị thông tin truyện
+            document.getElementById('top-title').innerText = story.title;
+            document.getElementById('genre-badge').innerText = story.genre || 'Tổng hợp';
+            document.getElementById('story-title').innerText = story.title;
+            document.getElementById('story-author').innerText = story.author;
+            document.getElementById('story-uploader').innerText = story.uploader || 'Admin';
+            document.getElementById('story-desc').innerText = story.description;
+            document.getElementById('story-cover').src = story.cover || 'https://via.placeholder.com/150';
+
+            // Hiển thị danh sách chương
+            const chapterList = document.getElementById('chapter-list');
+            if (story.chapters && story.chapters.length > 0) {
+                chapterList.innerHTML = story.chapters.map((ch, index) => `
+                    <button onclick="readChapter(${index})" class="w-full text-left p-3 rounded hover:bg-indigo-50 border flex justify-between items-center transition">
+                        <span class="font-medium">Chương ${ch.chapter_number}: ${ch.title}</span>
+                        <span class="text-xs text-indigo-600 bg-indigo-100 px-2 py-1 rounded">Đọc ngay →</span>
+                    </button>
+                `).join('');
+
+                // Mặc định tự động mở chương đầu tiên luôn cho tiện đọc
+                readChapter(0);
+            } else {
+                chapterList.innerHTML = '<p class="text-gray-500">Truyện này chưa có chương nào.</p>';
+            }
+        }
+
+        // Hàm khi bấm vào đọc chương nào đó
+        function readChapter(index) {
+            const ch = story.chapters[index];
+            document.getElementById('current-chapter-title').innerText = `Chương ${ch.chapter_number}: ${ch.title}`;
+            document.getElementById('chapter-content').innerText = ch.content;
+            
+            // Hiện khung đọc sách lên
+            document.getElementById('chapter-reader').classList.remove('hidden');
+            
+            // Cuộn màn hình mượt mà xuống phần đọc nội dung
+            document.getElementById('chapter-reader').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
