@@ -14,7 +14,6 @@
         }
     </script>
 
-    <!-- Header -->
     <header class="bg-white shadow p-4 sticky top-0 z-50">
         <div class="container mx-auto flex justify-between items-center">
             <h1 class="text-xl font-bold text-indigo-600">📖 Truyện Sáng Tác Vô Địch</h1>
@@ -26,14 +25,13 @@
     </header>
 
     <main class="container mx-auto px-4 py-8 max-w-4xl">
-        <!-- Thông tin Profile Card -->
         <div id="profile-card" class="bg-white p-6 rounded shadow mb-8 flex flex-col md:flex-row items-center gap-6 border-t-4 border-indigo-600">
             <div id="avatar-bg" class="w-24 h-24 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner">
                 <span id="avatar-text">A</span>
             </div>
             <div class="flex-1 text-center md:text-left">
                 <div class="flex items-center justify-center md:justify-start gap-2 mb-1">
-                    <h2 id="profile-username" class="text-2xl font-bold text-gray-800">Tên Tác Giả</h2>
+                    <h2 id="profile-username" class="text-2xl font-bold text-gray-800">Tên</h2>
                     <span id="role-badge" class="px-2 py-0.5 text-xs font-semibold rounded"></span>
                 </div>
                 <p id="role-desc" class="text-gray-500 text-sm mb-3">Thành viên sáng tác</p>
@@ -48,7 +46,6 @@
             </div>
         </div>
 
-        <!-- Danh sách hiển thị truyện (Thay đổi theo quyền hạn) -->
         <div class="bg-white p-6 rounded shadow">
             <h3 id="section-title" class="text-xl font-bold mb-6 border-b pb-3 flex justify-between items-center">
                 <span>✍️ Danh Sách Truyện</span>
@@ -56,7 +53,7 @@
             </h3>
 
             <div id="stories-container" class="space-y-4">
-                <!-- Dữ liệu load vào đây -->
+                <!-- Load nội dung -->
             </div>
         </div>
     </main>
@@ -70,18 +67,15 @@
         const avatarBg = document.getElementById('avatar-bg');
         const profileCard = document.getElementById('profile-card');
 
-        // Kiểm tra xem có phải tài khoản Admin không (tài khoản tên "admin" hoặc tùy ý bạn)
         const isAdmin = (currentUser.toLowerCase() === 'admin');
 
         if (isAdmin) {
-            // Giao diện dành riêng cho Admin tối cao
             roleBadge.innerText = "⭐ QUẢN TRỊ VIÊN (ADMIN)";
             roleBadge.className = "bg-red-100 text-red-700 px-2.5 py-0.5 text-xs font-bold rounded-full border border-red-300";
-            roleDesc.innerText = "Bạn có quyền quản lý, kiểm duyệt và xóa bất kỳ bộ truyện nào trên toàn hệ thống.";
+            roleDesc.innerText = "Bạn có toàn quyền quản lý, kiểm duyệt và xóa bất kỳ bộ truyện nào trên hệ thống.";
             avatarBg.className = "w-24 h-24 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-4xl font-bold shadow-inner";
             profileCard.className = "bg-white p-6 rounded shadow mb-8 flex flex-col md:flex-row items-center gap-6 border-t-4 border-red-600";
         } else {
-            // Giao diện tài khoản tác giả thường
             roleBadge.innerText = "✍️ TÁC GIẢ";
             roleBadge.className = "bg-indigo-100 text-indigo-700 px-2.5 py-0.5 text-xs font-bold rounded-full";
             roleDesc.innerText = "Thành viên sáng tác tại Truyện Sáng Tác Vô Địch.";
@@ -95,8 +89,6 @@
         function loadStories() {
             const allStories = JSON.parse(localStorage.getItem('myStories')) || [];
             
-            // Nếu là Admin: thấy toàn bộ truyện của tất cả mọi người
-            // Nếu là User thường: chỉ thấy truyện do chính mình đăng
             const displayStories = isAdmin 
                 ? allStories 
                 : allStories.filter(s => s.uploader === currentUser || (!s.uploader && currentUser === 'admin'));
@@ -112,7 +104,7 @@
             if (displayStories.length === 0) {
                 container.innerHTML = `
                     <div class="text-center py-10 text-gray-500">
-                        <p class="mb-3">Chưa có bộ truyện nào trong danh sách quản lý.</p>
+                        <p class="mb-3">Chưa có bộ truyện nào trong danh sách.</p>
                         <a href="admin.html" class="inline-block bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700">Tạo truyện ngay</a>
                     </div>
                 `;
@@ -136,26 +128,15 @@
                     <div class="flex sm:flex-col gap-2 w-full sm:w-auto justify-end">
                         <a href="add_chapter.html" class="flex-1 sm:flex-none text-center bg-green-600 text-white px-3 py-1.5 rounded text-xs hover:bg-green-700 font-semibold">+ Thêm chương</a>
                         <a href="reader.html?id=${s.id}" class="flex-1 sm:flex-none text-center bg-blue-50 text-blue-600 px-3 py-1.5 rounded text-xs hover:bg-blue-100 font-semibold">Xem</a>
-                        <button onclick="deleteStory('${s.id}')" class="flex-1 sm:flex-none text-center bg-red-50 text-red-600 px-3 py-1.5 rounded text-xs hover:bg-red-100 font-semibold">Xóa</button>
+                            <button onclick="deleteStory('${s.id}')" class="flex-1 sm:flex-none text-center bg-red-50 text-red-600 px-3 py-1.5 rounded text-xs hover:bg-red-100 font-semibold">Xóa</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        // Xóa truyện (Admin có quyền xóa tất cả, User thường chỉ xóa truyện của mình)
         function deleteStory(id) {
             if (confirm("Bạn có chắc chắn muốn xóa bộ truyện này không?")) {
                 let allStories = JSON.parse(localStorage.getItem('myStories')) || [];
-                
-                if (!isAdmin) {
-                    // Kiểm tra bảo mật phụ: User thường chỉ được xóa truyện do chính mình tạo
-                    const target = allStories.find(s => s.id === id);
-                    if (target && target.uploader && target.uploader !== currentUser) {
-                        alert('Bạn không có quyền xóa truyện của người khác!');
-                        return;
-                    }
-                }
-
                 allStories = allStories.filter(s => s.id !== id);
                 localStorage.setItem('myStories', JSON.stringify(allStories));
                 alert('Đã xóa truyện thành công!');
