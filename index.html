@@ -56,7 +56,7 @@
     </script>
 </body>
 </html>
-const currentUser = localStorage.getItem('currentUser');
+localStorage.getItem('currentUser');
 if (currentUser) {
     const authLink = document.getElementById('auth-link');
     authLink.innerText = "👤 " + currentUser;
