@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản Trị Truyện - Truyện Sáng Tác Vô Địch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800 p-4 md:p-8">
+    <script>
+        const currentUser = localStorage.getItem('currentUser');
+        if (!currentUser) {
+            alert('Bạn cần đăng nhập để truy cập trang quản trị!');
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <div class="max-w-3xl mx-auto bg-white p-6 rounded shadow">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-indigo-600">✍️ Viết & Đăng Truyện</h1>
+                <p class="text-xs text-gray-500">Tác giả: <span id="username-display" class="font-bold text-indigo-500"></span></p>
+            </div>
+            <div class="space-x-2">
+                <a href="index.html" class="text-sm text-indigo-600 hover:underline">Trang chủ</a> | 
+                <button onclick="logout()" class="text-sm text-red-500 hover:underline">Đăng xuất</button>
+            </div>
+        </div>
+
+        <form id="storyForm" class="space-y-4">
+            <!-- Tên truyện & Tác giả -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold mb-1">Tên truyện</label>
+                    <input type="text" id="title" class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Ví dụ: Đỉnh Cấp Khí Vận" required>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1">Bút danh / Tác giả</label>
+                    <input type="text" id="author" class="w-full border p-2 rounded" placeholder="Tên tác giả" required>
+                </div>
+            </div>
+
+            <!-- Thể loại & Chương số -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block font-semibold mb-1">Thể loại</label>
+                    <select id="genre" class="w-full border p-2 rounded bg-white">
+                        <option value="Tiên Hiệp">Tiên Hiệp</option>
+                        <option value="Huyền Huyễn">Huyền Huyễn</option>
+                        <option value="Đô Thị">Đô Thị</option>
+                        <option value="Ngôn Tình">Ngôn Tình</option>
+                        <option value="Trọng Sinh">Trọng Sinh</option>
+                        <option value="Khoa Huyễn">Khoa Huyễn</option>
+                        <option value="Lịch Sử">Lịch Sử</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1">Chương số</label>
+                    <input type="number" id="chapter_num" value="1" min="1" class="w-full border p-2 rounded" required>
+                </div>
+            </div>
+
+            <!-- Link Ảnh Bìa (URL) -->
+            <div>
+                <label class="block font-semibold mb-1">Link Ảnh Bìa Truyện (URL)</label>
+                <input type="url" id="cover" class="w-full border p-2 rounded" placeholder="Dán link ảnh online vào đây (ví dụ từ imgur, google...)" required>
+                <p class="text-xs text-gray-400 mt-1">Mẹo: Bạn có thể tải ảnh lên các trang up ảnh miễn phí rồi dán link trực tiếp vào đây.</p>
+            </div>
+
+            <!-- Mô tả ngắn -->
+            <div>
+                <label class="block font-semibold mb-1">Giới thiệu ngắn / Văn án</label>
+                <textarea id="description" class="w-full border p-2 rounded h-20" placeholder="Tóm tắt nội dung truyện..." required></textarea>
+            </div>
+
+            <!-- Tên chương & Nội dung chương -->
+            <div>
+                <label class="block font-semibold mb-1">Tên chương (Ví dụ: Chương 1: Khởi đầu)</label>
+                <input type="text" id="chapter_title" class="w-full border p-2 rounded" placeholder="Tên chương" required>
+            </div>
+
+            <div>
+                <label class="block font-semibold mb-1">Nội dung chương (Hỗ trợ chèn link ảnh [img]link_anh[/img] nếu muốn)</label>
+                <textarea id="content" class="w-full border p-2 rounded h-64" placeholder="Nhập nội dung chi tiết của chương vào đây..." required></textarea>
+            </div>
+
+            <!-- Các nút hành động: Đăng ngay & Lưu nháp -->
+            <div class="flex gap-4 pt-2">
+                <button type="button" onclick="saveDraft()" class="w-1/2 bg-gray-500 text-white font-bold py-2 px-4 rounded hover:bg-gray-600 transition">💾 Lưu Bản Nháp</button>
+                <button type="submit" class="w-1/2 bg-indigo-600 text-white font-bold py-2 px-4 rounded hover:bg-indigo-700 transition">🚀 Đăng Truyện Ngay</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('username-display').innerText = currentUser;
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        // Tự động tải lại bản nháp cũ nếu có
+        window.onload = function() {
+            const draft = JSON.parse(localStorage.getItem('storyDraft_' + currentUser));
+            if (draft) {
+                if (confirm("Phát hiện một bản nháp bạn viết dở lần trước. Bạn có muốn khôi phục lại không?")) {
+                    document.getElementById('title').value = draft.title || '';
+                    document.getElementById('author').value = draft.author || '';
+                    document.getElementById('genre').value = draft.genre || 'Tiên Hiệp';
+                    document.getElementById('chapter_num').value = draft.chapter_num || 1;
+                    document.getElementById('cover').value = draft.cover || '';
+                    document.getElementById('description').value = draft.description || '';
+                    document.getElementById('chapter_title').value = draft.chapter_title || '';
+                    document.getElementById('content').value = draft.content || '';
+                }
+            }
+        };
+
+        // Tính năng Lưu Nháp
+        function saveDraft() {
+            const draftData = {
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                genre: document.getElementById('genre').value,
+                chapter_num: document.getElementById('chapter_num').value,
+                cover: document.getElementById('cover').value,
+                description: document.getElementById('description').value,
+                chapter_title: document.getElementById('chapter_title').value,
+                content: document.getElementById('content').value
+            };
+            localStorage.setItem('storyDraft_' + currentUser, JSON.stringify(draftData));
+            alert('Đã lưu bản nháp thành công vào bộ nhớ!');
+        }
+
+        // Tính năng Đăng Truyện chính thức
+        document.getElementById('storyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const newStory = {
+                id: Date.now().toString(),
+                title: document.getElementById('title').value,
+                author: document.getElementById('author').value,
+                genre: document.getElementById('genre').value,
+                cover: document.getElementById('cover').value,
+                description: document.getElementById('description').value,
+                uploader: currentUser,
+                chapters: [
+                    {
+                        chapter_number: document.getElementById('chapter_num').value,
+                        title: document.getElementById('chapter_title').value,
+                        content: document.getElementById('content').value
+                    }
+                ]
+            };
+
+            let stories = JSON.parse(localStorage.getItem('myStories')) || [];
+            stories.push(newStory);
+            localStorage.setItem('myStories', JSON.stringify(stories));
+
+            // Xóa bản nháp sau khi đăng thành công
+            localStorage.removeItem('storyDraft_' + currentUser);
+
+            alert('Đăng truyện và chương mới thành công!');
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>
