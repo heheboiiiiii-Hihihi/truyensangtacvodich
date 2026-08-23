@@ -6,20 +6,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-800">
-    <header class="bg-white shadow p-4 mb-6 sticky top-0 z-10">
+    <header class="bg-white shadow p-4 mb-6 sticky top-0 z-50">
         <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
-            <h1 class="text-xl font-bold text-indigo-600">📖 Truyện Sáng Tác Vô Địch</h1>
+            <div class="flex justify-between items-center w-full md:w-auto">
+                <h1 class="text-xl font-bold text-indigo-600">📖 Truyện Sáng Tác Vô Địch</h1>
+                
+                <!-- Nút Dấu 3 Chấm (Menu Mobile) -->
+                <button onclick="toggleMenu()" class="md:hidden text-2xl font-bold p-1 text-gray-600 hover:text-indigo-600 focus:outline-none">
+                    ⋮
+                </button>
+            </div>
             
             <!-- Ô Tìm Kiếm -->
             <div class="w-full md:w-1/3">
                 <input type="text" id="search-input" oninput="handleSearch()" placeholder="🔍 Tìm kiếm tên truyện, tác giả..." class="w-full border px-3 py-1.5 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
 
-            <!-- Khu vực tài khoản / Đăng nhập / Tạo truyện -->
-            <div id="auth-actions" class="flex items-center gap-2">
-                <!-- Sẽ được tự động thay đổi bằng Javascript tùy trạng thái đăng nhập -->
-                <a href="login.html" class="bg-gray-200 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-300">Đăng Nhập</a>
-                <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700">Tạo Truyện</a>
+            <!-- Menu Điều Hướng (Máy tính hiển thị ngang, Điện thoại ẩn đi khi chưa bấm dấu 3 chấm) -->
+            <div id="nav-menu" class="hidden md:flex items-center gap-2 w-full md:w-auto justify-end flex-col md:flex-row pt-2 md:pt-0 border-t md:border-t-0">
+                <div id="auth-actions" class="flex flex-col md:flex-row items-stretch md:items-center gap-2 w-full md:w-auto">
+                    <!-- Sẽ được thay đổi tự động bằng JavaScript -->
+                </div>
             </div>
         </div>
     </header>
@@ -27,20 +34,37 @@
     <main class="container mx-auto px-4 pb-12">
         <h2 class="text-2xl font-semibold mb-4 border-l-4 border-indigo-600 pl-3">Truyện Mới Cập Nhật</h2>
         <div id="story-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-            <!-- Danh sách truyện sẽ hiện ở đây -->
+            <!-- Danh sách truyện -->
         </div>
     </main>
 
     <script>
-        // Kiểm tra trạng thái đăng nhập để đổi giao diện nút bấm ở header
+        // Hàm bật/tắt menu dấu 3 chấm trên điện thoại
+        function toggleMenu() {
+            const menu = document.getElementById('nav-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Kiểm tra trạng thái đăng nhập để hiển thị nút trong menu
         const currentUser = localStorage.getItem('currentUser');
         const authActions = document.getElementById('auth-actions');
 
         if (currentUser) {
             authActions.innerHTML = `
-                <a href="profile.html" class="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 font-medium">👤 ${currentUser}</a>
-                <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700">Tạo Truyện</a>
+                <a href="profile.html" class="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 text-center font-medium">👤 ${currentUser} (Hồ sơ)</a>
+                <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700 text-center">📚 Tạo Truyện</a>
+                <button onclick="logout()" class="bg-red-500 text-white px-3 py-2 rounded text-sm hover:bg-red-600 text-center">Đăng Xuất</button>
             `;
+        } else {
+            authActions.innerHTML = `
+                <a href="login.html" class="bg-gray-200 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-300 text-center">Đăng Nhập</a>
+                <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700 text-center">Tạo Truyện</a>
+            `;
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.reload();
         }
 
         const stories = JSON.parse(localStorage.getItem('myStories')) || [];
