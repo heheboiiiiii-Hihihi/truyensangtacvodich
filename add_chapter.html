@@ -18,7 +18,7 @@
         <div class="flex justify-between items-center mb-6 border-b pb-4">
             <div>
                 <h1 class="text-2xl font-bold text-green-600">✍️ Viết Thêm Chương Mới</h1>
-                <p class="text-xs text-gray-500">Chọn truyện và viết nội dung chương tiếp theo</p>
+                <p class="text-xs text-gray-500">Tác giả: <span class="font-bold text-green-500">${currentUser}</span></p>
             </div>
             <div>
                 <a href="profile.html" class="text-sm text-indigo-600 hover:underline">← Quay lại hồ sơ</a>
@@ -29,7 +29,7 @@
             <div>
                 <label class="block font-semibold mb-1">Chọn truyện muốn viết chương</label>
                 <select id="story-select" class="w-full border p-2 rounded bg-white font-medium" required>
-                    <!-- Danh sách truyện của bạn sẽ load vào đây -->
+                    <!-- Load danh sách truyện -->
                 </select>
             </div>
 
@@ -54,21 +54,22 @@
     </div>
 
     <script>
-        // Load danh sách truyện của chính tác giả vào thẻ Select
         const stories = JSON.parse(localStorage.getItem('myStories')) || [];
-        const myStories = stories.filter(s => s.uploader === currentUser || (!s.uploader && currentUser === 'admin'));
+        const isAdmin = (currentUser.toLowerCase() === 'admin');
+        
+        // Admin thấy hết, User thường chỉ thấy truyện của mình
+        const myStories = isAdmin ? stories : stories.filter(s => s.uploader === currentUser || (!s.uploader && currentUser === 'admin'));
         
         const selectBox = document.getElementById('story-select');
 
         if (myStories.length === 0) {
-            alert('Bạn chưa tạo bộ truyện nào! Hãy tạo bộ truyện trước.');
+            alert('Bạn chưa có bộ truyện nào để thêm chương! Hãy tạo bộ truyện trước.');
             window.location.href = 'admin.html';
         } else {
             selectBox.innerHTML = myStories.map(s => `
-                <option value="${s.id}">${s.title} (Tổng số chương hiện tại: ${s.chapters ? s.chapters.length : 0})</option>
+                <option value="${s.id}">${s.title} (Số chương hiện tại: ${s.chapters ? s.chapters.length : 0})</option>
             `).join('');
             
-            // Tự động gợi ý chương tiếp theo khi chọn truyện
             selectBox.addEventListener('change', updateChapterNumber);
             updateChapterNumber();
         }
@@ -77,12 +78,10 @@
             const selectedId = selectBox.value;
             const targetStory = stories.find(s => s.id === selectedId);
             if (targetStory && targetStory.chapters) {
-                // Tự động điền số chương tiếp theo bằng tổng số chương + 1
                 document.getElementById('chapter_num').value = targetStory.chapters.length + 1;
             }
         }
 
-        // Xử lý lưu chương mới vào truyện đã chọn
         document.getElementById('chapterForm').addEventListener('submit', function(e) {
             e.preventDefault();
 
@@ -91,7 +90,6 @@
             const chapTitle = document.getElementById('chapter_title').value;
             const chapContent = document.getElementById('content').value;
 
-            // Tìm và cập nhật chương vào đúng truyện đó
             const storyIndex = stories.findIndex(s => s.id === selectedId);
             if (storyIndex !== -1) {
                 if (!stories[storyIndex].chapters) {
