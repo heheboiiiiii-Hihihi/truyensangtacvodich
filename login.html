@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng Nhập - Truyện Sáng Tác Vô Địch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="max-w-md w-full bg-white p-6 rounded shadow">
+        <h1 id="form-title" class="text-2xl font-bold text-indigo-600 mb-6 text-center">🔐 Đăng Nhập Quản Trị</h1>
+
+        <!-- Form Đăng Nhập / Đăng Ký -->
+        <div id="auth-form" class="space-y-4">
+            <div>
+                <label class="block font-semibold mb-1">Tài khoản</label>
+                <input type="text" id="username" class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập tên tài khoản" required>
+            </div>
+            <div>
+                <label class="block font-semibold mb-1">Mật khẩu</label>
+                <input type="password" id="password" class="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Nhập mật khẩu" required>
+            </div>
+
+            <button id="submit-btn" onclick="handleAuth()" class="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded hover:bg-indigo-700 transition">Đăng Nhập</button>
+        </div>
+
+        <div class="mt-4 text-center">
+            <button onclick="toggleMode()" id="switch-btn" class="text-sm text-indigo-600 hover:underline">Chưa có tài khoản? Đăng ký ngay</button>
+        </div>
+        <div class="mt-2 text-center">
+            <a href="index.html" class="text-xs text-gray-500 hover:underline">← Về trang chủ</a>
+        </div>
+    </div>
+
+    <script>
+        let isLoginMode = true;
+
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            document.getElementById('form-title').innerText = isLoginMode ? "🔐 Đăng Nhập Quản Trị" : "📝 Đăng Ký Tài Khoản";
+            document.getElementById('submit-btn').innerText = isLoginMode ? "Đăng Nhập" : "Đăng Ký";
+            document.getElementById('switch-btn').innerText = isLoginMode ? "Chưa có tài khoản? Đăng ký ngay" : "Đã có tài khoản? Đăng nhập";
+        }
+
+        function handleAuth() {
+            const user = document.getElementById('username').value.trim();
+            const pass = document.getElementById('password').value.trim();
+
+            if (!user || !pass) {
+                alert('Vui lòng nhập đầy đủ tài khoản và mật khẩu!');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('myUsers')) || [];
+
+            if (isLoginMode) {
+                // Xử lý Đăng nhập
+                const found = users.find(u => u.username === user && u.password === pass);
+                if (found || (user === "admin" && pass === "123")) { // Tài khoản mặc định dự phòng
+                    localStorage.setItem('currentUser', user);
+                    alert('Đăng nhập thành công!');
+                    window.location.href = 'admin.html';
+                } else {
+                    alert('Sai tài khoản hoặc mật khẩu!');
+                }
+            } else {
+                // Xử lý Đăng ký
+                const exists = users.some(u => u.username === user);
+                if (exists) {
+                    alert('Tài khoản này đã tồn tại, vui lòng chọn tên khác!');
+                    return;
+                }
+                users.push({ username: user, password: pass });
+                localStorage.setItem('myUsers', JSON.stringify(users));
+                alert('Đăng ký thành công! Hãy chuyển sang đăng nhập.');
+                toggleMode();
+            }
+        }
+    </script>
+</body>
+</html>
