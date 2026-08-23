@@ -11,7 +11,7 @@
             <h1 class="text-xl font-bold text-indigo-600">📖 Truyện Sáng Tác Vô Địch</h1>
             <div>
                 <a href="login.html" id="auth-link" class="bg-gray-200 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-300 mr-2">Đăng Nhập</a>
-                <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700">Đăng truyện</a>
+                <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700">Tạo Truyện</a>
             </div>
         </div>
     </header>
@@ -28,17 +28,16 @@
         if (currentUser) {
             const authLink = document.getElementById('auth-link');
             authLink.innerText = "👤 " + currentUser;
-            authLink.href = "admin.html";
+            authLink.href = "profile.html";
         }
 
         const stories = JSON.parse(localStorage.getItem('myStories')) || [];
         const list = document.getElementById('story-list');
 
         if (stories.length === 0) {
-            list.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">Chưa có truyện nào được đăng. Hãy đăng nhập và sáng tác ngay bộ truyện đầu tiên!</p>';
+            list.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">Chưa có truyện nào được đăng. Hãy đăng nhập và tạo bộ truyện đầu tiên!</p>';
         } else {
-            // Hiển thị danh sách truyện mới nhất lên đầu
-            list.innerHTML = stories.reverse().map(s => `
+            list.innerHTML = stories.slice().reverse().map(s => `
                 <div class="bg-white p-4 rounded shadow hover:shadow-xl transition flex flex-col justify-between">
                     <div>
                         <div class="relative mb-3">
@@ -56,9 +55,3 @@
     </script>
 </body>
 </html>
-localStorage.getItem('currentUser');
-if (currentUser) {
-    const authLink = document.getElementById('auth-link');
-    authLink.innerText = "👤 " + currentUser;
-    authLink.href = "profile.html"; // Bấm vào tên sẽ vào trang hồ sơ cá nhân
-}
