@@ -56,3 +56,9 @@
     </script>
 </body>
 </html>
+const currentUser = localStorage.getItem('currentUser');
+if (currentUser) {
+    const authLink = document.getElementById('auth-link');
+    authLink.innerText = "👤 " + currentUser;
+    authLink.href = "profile.html"; // Bấm vào tên sẽ vào trang hồ sơ cá nhân
+}
