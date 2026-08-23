@@ -15,8 +15,10 @@
                 <input type="text" id="search-input" oninput="handleSearch()" placeholder="🔍 Tìm kiếm tên truyện, tác giả..." class="w-full border px-3 py-1.5 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
             </div>
 
-            <div>
-                <a href="login.html" id="auth-link" class="bg-gray-200 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-300 mr-2">Đăng Nhập</a>
+            <!-- Khu vực tài khoản / Đăng nhập / Tạo truyện -->
+            <div id="auth-actions" class="flex items-center gap-2">
+                <!-- Sẽ được tự động thay đổi bằng Javascript tùy trạng thái đăng nhập -->
+                <a href="login.html" class="bg-gray-200 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-300">Đăng Nhập</a>
                 <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700">Tạo Truyện</a>
             </div>
         </div>
@@ -30,16 +32,18 @@
     </main>
 
     <script>
+        // Kiểm tra trạng thái đăng nhập để đổi giao diện nút bấm ở header
         const currentUser = localStorage.getItem('currentUser');
+        const authActions = document.getElementById('auth-actions');
+
         if (currentUser) {
-            const authLink = document.getElementById('auth-link');
-            authLink.innerText = "👤 " + currentUser;
-            authLink.href = "profile.html";
+            authActions.innerHTML = `
+                <a href="profile.html" class="bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700 font-medium">👤 ${currentUser}</a>
+                <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700">Tạo Truyện</a>
+            `;
         }
 
         const stories = JSON.parse(localStorage.getItem('myStories')) || [];
-        
-        // Hàm hiển thị danh sách truyện ra màn hình
         fnRenderStories(stories);
 
         function fnRenderStories(data) {
@@ -66,16 +70,13 @@
             `).join('');
         }
 
-        // Lọc truyện ngay khi người dùng gõ vào ô tìm kiếm
         function handleSearch() {
             const keyword = document.getElementById('search-input').value.toLowerCase().trim();
-            
             const filteredStories = stories.filter(s => 
                 s.title.toLowerCase().includes(keyword) || 
                 s.author.toLowerCase().includes(keyword) ||
                 (s.genre && s.genre.toLowerCase().includes(keyword))
             );
-
             fnRenderStories(filteredStories);
         }
     </script>
