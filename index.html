@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Truyện Sáng Tác Vô Địch</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <header class="bg-white shadow p-4 mb-6 sticky top-0 z-10">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold text-indigo-600">📖 Truyện Sáng Tác Vô Địch</h1>
+            <div>
+                <a href="login.html" id="auth-link" class="bg-gray-200 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-300 mr-2">Đăng Nhập</a>
+                <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700">Đăng truyện</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 pb-12">
+        <h2 class="text-2xl font-semibold mb-4 border-l-4 border-indigo-600 pl-3">Truyện Mới Cập Nhật</h2>
+        <div id="story-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            <!-- Danh sách truyện sẽ hiện ở đây -->
+        </div>
+    </main>
+
+    <script>
+        const currentUser = localStorage.getItem('currentUser');
+        if (currentUser) {
+            const authLink = document.getElementById('auth-link');
+            authLink.innerText = "👤 " + currentUser;
+            authLink.href = "admin.html";
+        }
+
+        const stories = JSON.parse(localStorage.getItem('myStories')) || [];
+        const list = document.getElementById('story-list');
+
+        if (stories.length === 0) {
+            list.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">Chưa có truyện nào được đăng. Hãy đăng nhập và sáng tác ngay bộ truyện đầu tiên!</p>';
+        } else {
+            // Hiển thị danh sách truyện mới nhất lên đầu
+            list.innerHTML = stories.reverse().map(s => `
+                <div class="bg-white p-4 rounded shadow hover:shadow-xl transition flex flex-col justify-between">
+                    <div>
+                        <div class="relative mb-3">
+                            <img src="${s.cover || 'https://via.placeholder.com/150'}" class="w-full h-52 object-cover rounded">
+                            <span class="absolute top-2 right-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded shadow">${s.genre || 'Tổng hợp'}</span>
+                        </div>
+                        <h3 class="font-bold text-lg mb-1 line-clamp-1"><a href="reader.html?id=${s.id}" class="hover:text-indigo-600">${s.title}</a></h3>
+                        <p class="text-sm text-gray-500 mb-2">Tác giả: ${s.author}</p>
+                        <p class="text-xs text-gray-600 line-clamp-2 mb-3">${s.description}</p>
+                    </div>
+                    <a href="reader.html?id=${s.id}" class="block text-center bg-indigo-50 text-indigo-600 font-semibold py-2 rounded hover:bg-indigo-600 hover:text-white transition text-sm">Đọc Truyện</a>
+                </div>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
