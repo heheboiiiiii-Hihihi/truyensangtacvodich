@@ -7,8 +7,14 @@
 </head>
 <body class="bg-gray-100 text-gray-800">
     <header class="bg-white shadow p-4 mb-6 sticky top-0 z-10">
-        <div class="container mx-auto flex justify-between items-center">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
             <h1 class="text-xl font-bold text-indigo-600">📖 Truyện Sáng Tác Vô Địch</h1>
+            
+            <!-- Ô Tìm Kiếm -->
+            <div class="w-full md:w-1/3">
+                <input type="text" id="search-input" oninput="handleSearch()" placeholder="🔍 Tìm kiếm tên truyện, tác giả..." class="w-full border px-3 py-1.5 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            </div>
+
             <div>
                 <a href="login.html" id="auth-link" class="bg-gray-200 text-gray-700 px-3 py-2 rounded text-sm hover:bg-gray-300 mr-2">Đăng Nhập</a>
                 <a href="admin.html" class="bg-indigo-600 text-white px-4 py-2 rounded text-sm hover:bg-indigo-700">Tạo Truyện</a>
@@ -32,12 +38,19 @@
         }
 
         const stories = JSON.parse(localStorage.getItem('myStories')) || [];
-        const list = document.getElementById('story-list');
+        
+        // Hàm hiển thị danh sách truyện ra màn hình
+        fnRenderStories(stories);
 
-        if (stories.length === 0) {
-            list.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">Chưa có truyện nào được đăng. Hãy đăng nhập và tạo bộ truyện đầu tiên!</p>';
-        } else {
-            list.innerHTML = stories.slice().reverse().map(s => `
+        function fnRenderStories(data) {
+            const list = document.getElementById('story-list');
+
+            if (data.length === 0) {
+                list.innerHTML = '<p class="text-gray-500 col-span-full text-center py-10">Không tìm thấy bộ truyện nào phù hợp!</p>';
+                return;
+            }
+
+            list.innerHTML = data.slice().reverse().map(s => `
                 <div class="bg-white p-4 rounded shadow hover:shadow-xl transition flex flex-col justify-between">
                     <div>
                         <div class="relative mb-3">
@@ -51,6 +64,19 @@
                     <a href="reader.html?id=${s.id}" class="block text-center bg-indigo-50 text-indigo-600 font-semibold py-2 rounded hover:bg-indigo-600 hover:text-white transition text-sm">Đọc Truyện</a>
                 </div>
             `).join('');
+        }
+
+        // Lọc truyện ngay khi người dùng gõ vào ô tìm kiếm
+        function handleSearch() {
+            const keyword = document.getElementById('search-input').value.toLowerCase().trim();
+            
+            const filteredStories = stories.filter(s => 
+                s.title.toLowerCase().includes(keyword) || 
+                s.author.toLowerCase().includes(keyword) ||
+                (s.genre && s.genre.toLowerCase().includes(keyword))
+            );
+
+            fnRenderStories(filteredStories);
         }
     </script>
 </body>
